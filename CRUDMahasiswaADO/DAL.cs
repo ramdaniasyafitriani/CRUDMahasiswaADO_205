@@ -132,6 +132,42 @@ namespace CRUDMahasiswaADO
         }
 
         // ==================== DELETE ====================
-       
+        public void DeleteMhs(string nim)
+        {
+            if (conn.State == ConnectionState.Closed)
+                conn.Open();
+
+            SqlCommand cmd = new SqlCommand("sp_DeleteMahasiswa", conn);
+            cmd.CommandType = CommandType.StoredProcedure;
+            cmd.Parameters.AddWithValue("@NIM", nim);
+            cmd.ExecuteNonQuery();
+            conn.Close();
+        }
+
+        // ==================== GET FOTO BY NIM (UNTUK MEMPERTAHANKAN FOTO SAAT UPDATE) ====================
+        public byte[] GetFotoByNIM(string nim)
+        {
+            byte[] foto = null;
+            try
+            {
+                if (conn.State == ConnectionState.Closed)
+                    conn.Open();
+
+                SqlCommand cmd = new SqlCommand("SELECT foto FROM Mahasiswa WHERE NIM = @NIM", conn);
+                cmd.Parameters.AddWithValue("@NIM", nim);
+                object result = cmd.ExecuteScalar();
+                if (result != DBNull.Value && result != null)
+                    foto = (byte[])result;
+                conn.Close();
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine("GetFotoByNIM error: " + ex.Message);
+            }
+            return foto;
+        }
+
+        // ==================== RESET DATA ====================
+        
     }
 }

@@ -20,6 +20,24 @@ namespace CRUDMahasiswaADO
         }
 
         // ==================== COUNT ====================
+        public int CountMhs()
+        {
+            if (conn.State == ConnectionState.Closed)
+                conn.Open();
+
+            SqlCommand cmd = new SqlCommand("sp_CountMahasiswa", conn);
+            cmd.CommandType = CommandType.StoredProcedure;
+
+            SqlParameter outputParam = new SqlParameter("@Total", SqlDbType.Int);
+            outputParam.Direction = ParameterDirection.Output;
+            cmd.Parameters.Add(outputParam);
+
+            cmd.ExecuteNonQuery();
+            conn.Close();
+            return Convert.ToInt32(outputParam.Value);
+        }
+
+        // ==================== GET ALL ====================
         
     }
 }

@@ -197,5 +197,124 @@ namespace CRUDMahasiswaADO
         }
 
         // ==================== GET BY NIM ====================
-        
+        public DataTable GetMhsByNIM(string nim)
+        {
+            if (conn.State == ConnectionState.Closed)
+                conn.Open();
+
+            SqlCommand cmd = new SqlCommand("sp_GetMahasiswaByNIM", conn);
+            cmd.CommandType = CommandType.StoredProcedure;
+            cmd.Parameters.AddWithValue("pNIM", nim);
+
+            da = new SqlDataAdapter(cmd);
+            dtMahasiswa = new DataTable();
+            da.Fill(dtMahasiswa);
+            conn.Close();
+            return dtMahasiswa;
+        }
+
+        // ==================== LOG ====================
+        public void InsertLog(string message)
+        {
+            using (SqlConnection logConn = new SqlConnection(GetConnectionString()))
+            {
+                logConn.Open();
+                SqlCommand cmd = new SqlCommand("sp_LogMessage", logConn);
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.AddWithValue("psn", message);
+                cmd.ExecuteNonQuery();
+            }
+        }
+
+        // ==================== GET PRODI (untuk Rekap) ====================
+        public DataTable getProdi()
+        {
+            if (conn.State == ConnectionState.Closed)
+                conn.Open();
+
+            SqlCommand cmd = new SqlCommand("SELECT NamaProdi FROM ProgramStudi", conn);
+            cmd.CommandType = CommandType.Text;
+
+            DataTable dt = new DataTable();
+            da = new SqlDataAdapter(cmd);
+            da.Fill(dt);
+            conn.Close();
+            return dt;
+        }
+
+        // ==================== REKAP ====================
+        public DataTable getDataRekap(string prodi, DateTime tanggalMasuk)
+        {
+            if (conn.State == ConnectionState.Closed)
+                conn.Open();
+
+            SqlCommand cmd = new SqlCommand("sp_Report", conn);
+            cmd.CommandType = CommandType.StoredProcedure;
+
+            cmd.Parameters.AddWithValue("@inProdi", prodi);
+            cmd.Parameters.AddWithValue("@inTglMasuk", tanggalMasuk.Year.ToString());
+
+            da = new SqlDataAdapter(cmd);
+            dtMahasiswa = new DataTable();
+            da.Fill(dtMahasiswa);
+            conn.Close();
+            return dtMahasiswa;
+        }
+
+        // ==================== CHART – SEMUA DATA ====================
+        public DataTable getAllDataChart()
+        {
+            if (conn.State == ConnectionState.Closed)
+                conn.Open();
+
+            SqlCommand cmd = new SqlCommand("sp_DashBoard", conn);
+            cmd.CommandType = CommandType.StoredProcedure;
+
+            da = new SqlDataAdapter(cmd);
+            dtMahasiswa = new DataTable();
+            da.Fill(dtMahasiswa);
+            conn.Close();
+            return dtMahasiswa;
+        }
+
+        // ==================== CHART – PER TAHUN ====================
+        public DataTable getDataChartByTahun(DateTime thMasuk)
+        {
+            if (conn.State == ConnectionState.Closed)
+                conn.Open();
+
+            SqlCommand cmd = new SqlCommand("sp_DashBoardByTahun", conn);
+            cmd.CommandType = CommandType.StoredProcedure;
+            cmd.Parameters.AddWithValue("@inTglMsuk", thMasuk.Year.ToString());
+
+            da = new SqlDataAdapter(cmd);
+            dtMahasiswa = new DataTable();
+            da.Fill(dtMahasiswa);
+            conn.Close();
+            return dtMahasiswa;
+        }
+
+        // ==================== GET LOCAL IP ADDRESS (tidak dipakai, tapi tetap ada) ====================
+        public static string GetLocalIPAddress()
+        {
+            string localIP = string.Empty;
+            try
+            {
+                var host = Dns.GetHostEntry(Dns.GetHostName());
+                foreach (var ip in host.AddressList)
+                {
+                    if (ip.AddressFamily == AddressFamily.InterNetwork)
+                    {
+                        localIP = ip.ToString();
+                        break;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Error getting local IP address: " + ex.Message);
+            }
+            return localIP;
+        }
+    }
 }
